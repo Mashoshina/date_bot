@@ -1,16 +1,12 @@
 import telebot
-from requests import delete
-from telebot import types
 import sqlite3
-from telebot.types import InputMediaPhoto
-import json
-import ast
-from unicodedata import lookup
-import asyncio
 
-print("Привет! Всё работает!!!?123 456 789 10 11")
+import requests.delete
+import telebot.types
+import telebot.types.InputMediaPhoto
+import unicodedata.lookup
 
-bot = telebot.TeleBot("7696108655:AAGa_BxsE298dCB7suEbgjT1ttjf2yy_-ho")
+
 proc_id = 0
 
 i = 0
@@ -25,30 +21,30 @@ mass_anks = []
 
 
 
-def init_db():
-    conn = sqlite3.connect('shadowlove.db')
-    curs = conn.cursor()
-    curs.execute('''CREATE TABLE IF NOT EXISTS users (
-                    user_id INTEGER PRIMARY KEY,
-                    username TEXT,
-                    sex INT
-                    find_sex INT
-                    city TEXT,
-                    age TEXT,
-                    bio TEXT,
-                    photo1 TEXT DEFAULT NULL,
-                    photo2 TEXT DEFAULT NULL,
-                    photo3 TEXT DEFAULT NULL)''')
-    curs.execute('''CREATE TABLE IF NOT EXISTS likes (
-                        id INTEGER PRIMARY KEY,
-                        like INT)''')
-    curs.execute('''CREATE TABLE IF NOT EXISTS matches (
-                            id INTEGER PRIMARY KEY,
-                            match INT)''')
-    curs.execute('''CREATE TABLE IF NOT EXISTS very_bad (
-                        reported_id INTEGER PRIMARY KEY)''')
-    conn.commit()
-    conn.close()
+# def init_db():
+#     conn = sqlite3.connect('shadowlove.db')
+#     curs = conn.cursor()
+#     curs.execute('''CREATE TABLE IF NOT EXISTS users (
+#                     user_id INTEGER PRIMARY KEY,
+#                     username TEXT,
+#                     sex INT
+#                     find_sex INT
+#                     city TEXT,
+#                     age TEXT,
+#                     bio TEXT,
+#                     photo1 TEXT DEFAULT NULL,
+#                     photo2 TEXT DEFAULT NULL,
+#                     photo3 TEXT DEFAULT NULL)''')
+#     curs.execute('''CREATE TABLE IF NOT EXISTS likes (
+#                         id INTEGER PRIMARY KEY,
+#                         like INT)''')
+#     curs.execute('''CREATE TABLE IF NOT EXISTS matches (
+#                             id INTEGER PRIMARY KEY,
+#                             match INT)''')
+#     curs.execute('''CREATE TABLE IF NOT EXISTS very_bad (
+#                         reported_id INTEGER PRIMARY KEY)''')
+#     conn.commit()
+#    conn.close()
 
 
 @bot.message_handler(commands=['start'])
