@@ -1,6 +1,7 @@
 __pycache__/
 
 app.db
+images/
 
 .env
 .venv

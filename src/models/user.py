@@ -10,4 +10,6 @@ class User(Base):
     gender = Column(String)
     interested_in = Column(String)
     age = Column(Integer)
+    city = Column(String)
+    photo_path = Column(String)
     description = Column(String)

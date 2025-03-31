@@ -37,16 +37,39 @@ def register_registration_handler(bot):
 
     def process_name_step(message):
         user_data[message.chat.id].name = message.text
+        bot.send_message(message.chat.id, "Из какого ты города?")
+        bot.register_next_step_handler(message, process_city_step)
+
+    def process_city_step(message):
+        user_data[message.chat.id].city = message.text
+        bot.send_message(message.chat.id, "Отправь мне своё фото")
+        bot.register_next_step_handler(message, process_photo_step)
+
+    
+    def process_photo_step(message):
+        try:
+            if message.content_type != 'photo':
+                msg = bot.send_message(message.chat.id, "Это не фото. Пожалуйста, отправь фото.")
+                return bot.register_next_step_handler(msg, process_photo_step)
+            
+            file_id = message.photo[-1].file_id
+            file_info = bot.get_file(file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            
+            photo_path = f"src/images/{message.chat.id}.jpg"
+            with open(photo_path, 'wb') as new_file:
+                new_file.write(downloaded_file)
+            
+            user_data[message.chat.id].photo_path = photo_path
+            
+        except Exception as e:
+            bot.reply_to(message, 'Ошибка: ' + str(e))
 
         bot.send_message(
             message.chat.id, 
             "Какой у тебя пол?", 
             reply_markup=generate_gender_keyboard()
         )
-
-    # @bot.message_handler(content_types=['photo'])
-    # def process_photo_step(message):
-
 
     @bot.callback_query_handler(func=lambda call: call.data in ["male_gender", "female_gender"])
     def process_gender_step(call):
@@ -94,6 +117,8 @@ def register_registration_handler(bot):
             'gender': user_data[message.chat.id].gender,
             'interested_in': user_data[message.chat.id].interested_in,
             'age': user_data[message.chat.id].age,
+            'city': user_data[message.chat.id].city,
+            'photo_path': user_data[message.chat.id].photo_path,
             'description': user_data[message.chat.id].description
         }
 

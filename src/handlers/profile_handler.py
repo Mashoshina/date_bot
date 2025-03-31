@@ -7,18 +7,21 @@ def register_profile_handler(bot):
     def show_profile(call):
         db = next(get_db())
         user = crud.get_user(db, call.message.chat.id)
+        bot.delete_message(call.message.chat.id, call.message.message_id)
 
         if user:
             profile = f"""
                 Ваша анкета:
                 Имя: {user.name}
+                Город: {user.city}
                 Пол: {user.gender}
                 Возраст: {user.age}
                 О себе: {user.description}
             """
-            bot.edit_message_text(
-                profile, 
-                call.message.chat.id,
-                call.message.message_id,
+        with open(user.photo_path, 'rb') as photo_file:
+            bot.send_photo(
+                call.message.chat.id, 
+                photo_file, 
+                caption=profile, 
                 reply_markup=generate_profile_keyboard()
             )

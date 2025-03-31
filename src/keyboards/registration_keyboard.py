@@ -17,6 +17,6 @@ def generate_interested_in_keyboard():
 def generate_update_keyboard():
     markup = InlineKeyboardMarkup()
     btn_update = InlineKeyboardButton("Да, обновить анкету", callback_data="confirm_yes")
-    btn_continue = InlineKeyboardButton("Нет, оставить как есть", callback_data="confirm_no")
+    btn_continue = InlineKeyboardButton("Нет, оставить как есть", callback_data="main")
     markup.add(btn_update, btn_continue)
     return markup

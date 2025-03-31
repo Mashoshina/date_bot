@@ -11,6 +11,8 @@ def create_user(db: Session, telegram_id: int, user_data: dict):
         gender=user_data['gender'],
         interested_in=user_data['interested_in'],
         age=user_data['age'],
+        city=user_data['city'],
+        photo_path=user_data['photo_path'],
         description=user_data['description']
     )
     db.add(db_user)
@@ -25,6 +27,8 @@ def update_user(db: Session, telegram_id: int, user_data: dict):
         db_user.gender = user_data['gender']
         db_user.interested_in = user_data['interested_in']
         db_user.age = user_data['age']
+        db_user.city = user_data['city']
+        db_user.photo_path = user_data['photo_path']
         db_user.description = user_data['description']
         db.commit()
         db.refresh(db_user)
