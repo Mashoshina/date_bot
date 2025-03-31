@@ -1,6 +1,7 @@
-from src.keyboards.registration import generate_gender_keyboard
-from src.keyboards.registration import generate_interested_in_keyboard
-from src.keyboards.registration import generate_update_keyboard
+from src.keyboards.registration_keyboard import generate_gender_keyboard
+from src.keyboards.registration_keyboard import generate_interested_in_keyboard
+from src.keyboards.registration_keyboard import generate_update_keyboard
+from src.keyboards.main_keyboard import get_main_keyboard
 from src.models.user import User
 from src.db import crud
 from src.db.database import get_db
@@ -8,95 +9,112 @@ from src.db.database import get_db
 user_data = {}
 
 def register_registration_handler(bot):
-    @bot.message_handler(func=lambda msg: msg.text in ["Создать анкету"])
-    def start_registration(message):
-        chat_id = message.chat.id
+    @bot.callback_query_handler(func=lambda call: call.data == "start_reg")
+    def start_registration(call):
         db = next(get_db())
+        try:
+            if crud.check_user_exists(db, call.message.chat.id):
+                bot.edit_message_text(
+                    "У вас уже есть анкета! Хотите обновить её?", 
+                    call.message.chat.id, 
+                    call.message.message_id,
+                    reply_markup=generate_update_keyboard()
+                )
+            else:
+                user_data[call.message.chat.id] = User()
+                bot.delete_message(call.message.chat.id, call.message.message_id)
+                bot.send_message(call.message.chat.id, "Создаём анкету! Как тебя зовут?")
+                bot.register_next_step_handler(call.message,  process_name_step)
+        finally:
+            db.close()
 
-        if crud.check_user_exists(db, chat_id):
-            markup = generate_update_keyboard()
-            bot.send_message(chat_id, "У вас уже есть анкета! Хотите обновить её?", reply_markup=markup)
-            bot.register_next_step_handler(message, handle_existing_profile)
-        else:
-            user_data[chat_id] = User()
-            bot.send_message(chat_id, "Создаём анкету! Как тебя зовут?")
-            bot.register_next_step_handler(message, process_name_step)
-    
-    def handle_existing_profile(message):
-        chat_id = message.chat.id
-        if message.text == "Да, обновить анкету":
-            user_data[chat_id] = User()
-            bot.send_message(chat_id, "Хорошо! Давай обновим твою анкету. Как тебя зовут?")
-            bot.register_next_step_handler(message, process_name_step)
-        else:
-            bot.send_message(chat_id, "Оставляем текущую анкету без изменений.")
+    @bot.callback_query_handler(func=lambda call: call.data in ["confirm_yes", "repeat_reg"])
+    def handle_update_existing_profile(call):
+        user_data[call.message.chat.id] = User()
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, "Хорошо! Давай обновим твою анкету. Как тебя зовут?")
+        bot.register_next_step_handler(call.message, process_name_step)
 
     def process_name_step(message):
-        chat_id = message.chat.id
-        name = message.text
-        user_data[chat_id].name = name
+        user_data[message.chat.id].name = message.text
 
-        markup = generate_gender_keyboard()
+        bot.send_message(
+            message.chat.id, 
+            "Какой у тебя пол?", 
+            reply_markup=generate_gender_keyboard()
+        )
 
-        bot.send_message(chat_id, "Какой у тебя пол?", reply_markup=markup)
-        bot.register_next_step_handler(message, process_gender_step)
+    # @bot.message_handler(content_types=['photo'])
+    # def process_photo_step(message):
 
-    def process_gender_step(message):
-        chat_id = message.chat.id
-        gender = message.text
 
-        user_data[chat_id].gender = gender
+    @bot.callback_query_handler(func=lambda call: call.data in ["male_gender", "female_gender"])
+    def process_gender_step(call):
+        if call.data == "male_gender":
+            user_data[call.message.chat.id].gender = "Мужчина"
+        else:
+            user_data[call.message.chat.id].gender = "Женщина"
 
-        markup = generate_interested_in_keyboard()
+        bot.edit_message_text(
+            "Какой пол тебя интересует?", 
+            call.message.chat.id, 
+            call.message.message_id,
+            reply_markup=generate_interested_in_keyboard()
+        )
 
-        bot.send_message(chat_id, "Какой пол тебя интересует?", reply_markup=markup)
-        bot.register_next_step_handler(message, process_interested_in_step)
-
-    def process_interested_in_step(message):
-        chat_id = message.chat.id
-        interested_in = message.text
-        
-        user_data[chat_id].interested_in = interested_in
-        bot.send_message(chat_id, "Сколько тебе лет? (Введи число):")
-        bot.register_next_step_handler(message, process_age_step) 
+    @bot.callback_query_handler(func=lambda call: call.data in ["male_inter", "female_inter"])
+    def process_interested_in_step(call):
+        if call.data == "male_inter":
+            user_data[call.message.chat.id].interested_in = "Мужчины"
+        else:
+            user_data[call.message.chat.id].interested_in = "Женщины"
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, "Сколько тебе лет? (Введи число):")
+        bot.register_next_step_handler(call.message, process_age_step) 
 
     def process_age_step(message):
-        chat_id = message.chat.id
         try:
             age = int(message.text)
             if age < 18 or age > 80:
-                bot.send_message(chat_id, "Пожалуйств, введите реальный возраст (18-80)")
+                bot.send_message(message.chat.id, "Пожалуйств, введите реальный возраст (18-80)")
                 return bot.register_next_step_handler(message, process_age_step)
-            user_data[chat_id].age = age
-            bot.send_message(chat_id, "Расскажи немного о себе:")
+            user_data[message.chat.id].age = age
+            bot.send_message(message.chat.id, "Расскажи немного о себе:")
             bot.register_next_step_handler(message, process_description_step)
         except ValueError:
-            bot.send_message(chat_id, "Пожалуйста, введите число ")
+            bot.send_message(message.chat.id, "Пожалуйста, введите число ")
+
+
     
     def process_description_step(message):
-        chat_id = message.chat.id
-        description = message.text
-        user_data[chat_id].description = description
-
+        user_data[message.chat.id].description = message.text
         db = next(get_db())
         user_dict = {
-            'name': user_data[chat_id].name,
-            'gender': user_data[chat_id].gender,
-            'interested_in': user_data[chat_id].interested_in,
-            'age': user_data[chat_id].age,
-            'description': user_data[chat_id].description
+            'name': user_data[message.chat.id].name,
+            'gender': user_data[message.chat.id].gender,
+            'interested_in': user_data[message.chat.id].interested_in,
+            'age': user_data[message.chat.id].age,
+            'description': user_data[message.chat.id].description
         }
 
         try:
-            if crud.check_user_exists(db, chat_id):
-                crud.update_user(db, chat_id, user_dict)
-                bot.send_message(chat_id, "Анкета успешно обновлена")
+            if crud.check_user_exists(db, message.chat.id):
+                crud.update_user(db, message.chat.id, user_dict)
+                bot.send_message(
+                    message.chat.id, 
+                    "Анкета успешно обновлена", 
+                    reply_markup=get_main_keyboard()
+                )
             else:
-                crud.create_user(db, chat_id, user_dict)
-                bot.send_message(chat_id, "Анкета успешно создана")
+                crud.create_user(db, message.chat.id, user_dict)
+                bot.send_message(
+                    message.chat.id, 
+                    "Анкета успешно создана", 
+                    reply_markup=get_main_keyboard()
+                )
         except Exception as e:
-            bot.send_message(chat_id, "Произошла ошибка, сообщите о ней @dead_boy_91")
+            bot.send_message(message.chat.id, "Произошла ошибка, сообщите о ней @dead_boy_91")
             print(f"Не получилось сохранить пользователя: {e}")
         finally:
-            if chat_id in user_data:
-                del user_data[chat_id]
+            if message.chat.id in user_data:
+                del user_data[message.chat.id]

@@ -5,3 +5,8 @@
 ```py
 python main.py
 ```
+
+### Используемые библиотеки
+
+- telebot
+- ~~sqlalchemy~~

@@ -1,22 +1,24 @@
+from src.keyboards.profile_keyboard import generate_profile_keyboard
 from src.db import crud
 from src.db.database import get_db
 
 def register_profile_handler(bot):
-    @bot.message_handler(func=lambda msg: msg.text in ["Создать анкету"])
-    def show_profile(message):
-        chat_id = message.chat.id
+    @bot.callback_query_handler(func=lambda call: call.data == "my_profile")
+    def show_profile(call):
         db = next(get_db())
-        user = crud.get_user(db, chat_id)
+        user = crud.get_user(db, call.message.chat.id)
 
         if user:
             profile = f"""
                 Ваша анкета:
                 Имя: {user.name}
                 Пол: {user.gender}
-                Ищу: {user.interested_in}
                 Возраст: {user.age}
                 О себе: {user.description}
             """
-            bot.send_message(chat_id, profile)
-        else:
-            bot.send_message(chat_id, "У вас нет анкеты. Нажмите 'Создать анкету'")
+            bot.edit_message_text(
+                profile, 
+                call.message.chat.id,
+                call.message.message_id,
+                reply_markup=generate_profile_keyboard()
+            )
