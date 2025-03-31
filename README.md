@@ -9,4 +9,5 @@ python main.py
 ### Используемые библиотеки
 
 - telebot
-- ~~sqlalchemy~~
+- sqlalchemy
+- ~~redis~~
