@@ -1,7 +1,14 @@
-### Телеграм бот SHADOWLOVE
+# Телеграм бот SHADOWLOVE
 
-Тут будет текст...
+### Запуск бота
 
 ```py
-python date_bot.py
+python main.py
 ```
+
+### Сторонние библиотеки
+
+- telebot
+- sqlalchemy
+- colorama
+- ~~redis~~
