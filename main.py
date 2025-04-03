@@ -4,6 +4,8 @@ from src.handlers.start_handler import register_start_handlers
 from src.handlers.registration_handler import register_registration_handler
 from src.handlers.profile_handler import register_profile_handler
 from src.handlers.main_handler import register_main_handler
+from src.handlers.view_profiles_handler import register_dating_handlers
+from src.handlers.mutual_handler import register_mutual_handler
 from config import BOT_TOKEN
 
 def create_bot():
@@ -12,6 +14,8 @@ def create_bot():
     register_registration_handler(bot)
     register_main_handler(bot)
     register_profile_handler(bot)
+    register_dating_handlers(bot)
+    register_mutual_handler(bot)
     return bot
 
 if __name__ == "__main__":

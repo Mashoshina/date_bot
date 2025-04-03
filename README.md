@@ -6,8 +6,9 @@
 python main.py
 ```
 
-### Используемые библиотеки
+### Сторонние библиотеки
 
 - telebot
 - sqlalchemy
+- colorama
 - ~~redis~~

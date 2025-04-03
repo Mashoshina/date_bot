@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 from src.db.database import Base
 
 class User(Base):
@@ -13,3 +14,6 @@ class User(Base):
     city = Column(String)
     photo_path = Column(String)
     description = Column(String)
+
+    reactions_given = relationship("Reaction", foreign_keys="Reaction.user_id", back_populates="user")
+    reactions_received = relationship("Reaction", foreign_keys="Reaction.target_user_id", back_populates="target_user")
