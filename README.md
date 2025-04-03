@@ -12,3 +12,12 @@ python main.py
 - sqlalchemy
 - colorama
 - ~~redis~~
+
+### Настройка бота
+
+Перед началом использования нужно изменить токен бота
+
+```py
+# config.py
+BOT_TOKEN = "your_token"
+```
