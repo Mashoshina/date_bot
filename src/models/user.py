@@ -7,6 +7,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     telegram_id = Column(Integer, unique=True, index=True)
+    telegram_name = Column(String)
     name = Column(String)
     gender = Column(String)
     interested_in = Column(String)

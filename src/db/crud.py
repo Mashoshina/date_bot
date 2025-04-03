@@ -10,6 +10,7 @@ def check_user_exists(db: Session, telegram_id: int) -> bool:
 def create_user(db: Session, telegram_id: int, user_data: dict):
     db_user = User(
         telegram_id=telegram_id,
+        telegram_name=user_data['telegram_name'],
         name=user_data['name'],
         gender=user_data['gender'],
         interested_in=user_data['interested_in'],
@@ -27,6 +28,7 @@ def update_user(db: Session, telegram_id: int, user_data: dict):
     db_user = db.query(User).filter(User.telegram_id == telegram_id).first()
     if db_user:
         db_user.name = user_data['name']
+        db_user.telegram_name=user_data['telegram_name']
         db_user.gender = user_data['gender']
         db_user.interested_in = user_data['interested_in']
         db_user.age = user_data['age']

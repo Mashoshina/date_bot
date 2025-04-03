@@ -36,6 +36,8 @@ def register_registration_handler(bot):
 
     def process_name_step(message):
         user_data[message.from_user.id].name = message.text
+        if message.from_user.username:
+            user_data[message.from_user.id].telegram_name = message.from_user.username
         bot.send_message(message.chat.id, "Из какого ты города?")
         bot.register_next_step_handler(message, process_city_step)
 
@@ -112,6 +114,7 @@ def register_registration_handler(bot):
         user_data[message.from_user.id].description = message.text
         db = next(get_db())
         user_dict = {
+            'telegram_name': user_data[message.from_user.id].telegram_name,
             'name': user_data[message.from_user.id].name,
             'gender': user_data[message.from_user.id].gender,
             'interested_in': user_data[message.from_user.id].interested_in,

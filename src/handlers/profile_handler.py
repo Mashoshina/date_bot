@@ -17,6 +17,7 @@ def register_profile_handler(bot):
                 Пол: {user.gender}
                 Возраст: {user.age}
                 О себе: {user.description}
+                Имя пользователя: @{user.telegram_name}
             """
         with open(user.photo_path, 'rb') as photo_file:
             bot.send_photo(

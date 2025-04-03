@@ -1,6 +1,7 @@
 from src.db import crud
 from src.db.database import get_db
-from src.keyboards.view_profiles_keyboard import generate_date_keyboard
+from src.keyboards.main_keyboard import get_main_keyboard
+from src.keyboards.view_profiles_keyboard import generate_date_keyboard 
 from src.core.logging import logger
 
 def register_dating_handlers(bot):
@@ -12,7 +13,11 @@ def register_dating_handlers(bot):
         next_user = crud.get_next_user(db, current_user.id)
 
         if not next_user:
-            return bot.send_message(call.message.chat.id, "Анкеты закончились! 🎉")
+            return bot.send_message(
+                call.message.chat.id, 
+                "Анкеты закончились! 🎉", 
+                reply_markup=get_main_keyboard()
+        )
         
         send_profile(bot, call.message.chat.id, next_user)
 
@@ -23,6 +28,7 @@ def register_dating_handlers(bot):
             Пол: {user.gender}
             Возраст: {user.age}
             О себе: {user.description}
+            Имя пользователя: @{user.telegram_name}
         """
         bot.send_message(
             chat_id,
@@ -53,7 +59,11 @@ def register_dating_handlers(bot):
             if next_user:
                 send_profile(bot, call.message.chat.id, next_user)
             else:
-                bot.send_message(call.message.chat.id, "Вы просмотрели всех! 🎉")
+                bot.send_message(
+                    call.message.chat.id, 
+                    "Вы просмотрели всех! 🎉", 
+                    reply_markup=get_main_keyboard()
+                )
             
             bot.answer_callback_query(call.id, "👍 Сохранено!")
         except Exception as e:
