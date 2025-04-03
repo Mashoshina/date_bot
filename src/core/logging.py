@@ -13,7 +13,7 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         if record.levelno in self.COLORS:
             record.levelname = (
-                f"{self.COLORS[record.levelno]}",
+                f"{self.COLORS[record.levelno]}"
                 f"{record.levelname}{Style.RESET_ALL}"
                 )
         return super().format(record)
